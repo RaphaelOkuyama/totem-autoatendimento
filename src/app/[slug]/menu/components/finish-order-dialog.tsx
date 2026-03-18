@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConsumptionMethod } from "@prisma/client";
 import { Loader2Icon } from "lucide-react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation"; // Importado useRouter
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
 
 import { createOrder } from "../actions/create-order";
 import { CartContext } from "../contexts/cart";
-import { isValidCpf } from "../helpers/cpf";
+import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf"; // Importado removeCpfPunctuation
 
 const formSchema = z.object({
   name: z.string().trim().min(1, {
@@ -60,6 +60,7 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
   const { slug } = useParams<{ slug: string }>();
   const { products } = useContext(CartContext);
   const searchParams = useSearchParams();
+  const router = useRouter(); // Inicializado o router
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -85,8 +86,10 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
         slug,
       });
 
-      // Fechar o drawer após o sucesso da criação do pedido
       onOpenChange(false);
+      
+      router.push(`/${slug}/orders?cpf=${removeCpfPunctuation(data.cpf)}`);
+      
     } catch (error) {
       console.error(error);
     } finally {

@@ -85,7 +85,7 @@ const CpfForm = () => {
               )}
             />
             <DrawerFooter>
-              <Button variant="destructive" className="w-full rounded-full">
+              <Button type="submit" variant="destructive" className="w-full rounded-full">
                 Confirmar
               </Button>
               <DrawerClose asChild>
