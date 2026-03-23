@@ -28,13 +28,9 @@ interface ProductDetailsProps {
 const ProductDetails = ({ product }: ProductDetailsProps) => {
   const { toggleCart, addProduct } = useContext(CartContext);
   const [quantity, setQuantity] = useState<number>(1);
+
   const handleDecreaseQuantity = () => {
-    setQuantity((prev) => {
-      if (prev === 1) {
-        return 1;
-      }
-      return prev - 1;
-    });
+    setQuantity((prev) => (prev === 1 ? 1 : prev - 1));
   };
   const handleIncreaseQuantity = () => {
     setQuantity((prev) => prev + 1);
@@ -46,10 +42,14 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
     });
     toggleCart();
   };
+
   return (
     <>
-      <div className="relative z-50 mt-[-1.5rem] flex flex-auto flex-col overflow-hidden rounded-t-3xl p-5">
-        <div className="flex-auto overflow-hidden">
+      {/* MUDANÇA 1: Adicionei h-[calc(100dvh-250px)] para limitar a altura da div de conteúdo e forçar o scroll interno */}
+      <div className="relative z-50 mt-[-1.5rem] flex h-[calc(100dvh-250px)] flex-col rounded-t-3xl bg-white p-5">
+        
+        {/* MUDANÇA 2: Alterado de flex-auto para flex-1 e adicionado overflow-hidden */}
+        <div className="flex-1 overflow-hidden">
           {/* RESTAURANTE */}
           <div className="flex items-center gap-1.5">
             <Image
@@ -91,33 +91,39 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
             </div>
           </div>
 
+          {/* MUDANÇA 3: O ScrollArea agora envolve todo o conteúdo de texto e tem um padding bottom interno */}
           <ScrollArea className="h-full">
-            {/* SOBRE */}
-            <div className="mt-6 space-y-3">
-              <h4 className="font-semibold">Sobre</h4>
-              <p className="text-sm text-muted-foreground">
-                {product.description}
-              </p>
-            </div>
-
-            {/* INGREDIENTS */}
-            <div className="mt-6 space-y-3">
-              <div className="5 flex items-center gap-1">
-                <ChefHatIcon size={18} />
-                <h4 className="font-semibold">Ingredientes</h4>
+            <div className="pb-10"> {/* Div extra para garantir que o scroll passe do botão */}
+              {/* SOBRE */}
+              <div className="mt-6 space-y-3">
+                <h4 className="font-semibold">Sobre</h4>
+                <p className="text-sm text-muted-foreground">
+                  {product.description}
+                </p>
               </div>
-              <ul className="text-muted-fo list-disc px-5 text-sm text-muted-foreground">
-                {product.ingredients.map((ingredient) => (
-                  <li key={ingredient}>{ingredient}</li>
-                ))}
-              </ul>
+
+              {/* INGREDIENTES */}
+              <div className="mt-6 space-y-3">
+                <div className="flex items-center gap-1">
+                  <ChefHatIcon size={18} />
+                  <h4 className="font-semibold">Ingredientes</h4>
+                </div>
+                <ul className="list-disc px-5 text-sm text-muted-foreground">
+                  {product.ingredients.map((ingredient) => (
+                    <li key={ingredient}>{ingredient}</li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </ScrollArea>
         </div>
 
-        <Button className="w-full rounded-full" onClick={handleAddToCart}>
-          Adicionar à sacola
-        </Button>
+        {/* BOTÃO FIXO NO RODAPÉ */}
+        <div className="mt-4">
+          <Button className="w-full rounded-full" onClick={handleAddToCart}>
+            Adicionar à sacola
+          </Button>
+        </div>
       </div>
       <CartSheet />
     </>
