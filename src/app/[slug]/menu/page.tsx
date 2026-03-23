@@ -20,9 +20,11 @@ const RestaurantMenuPage = async ({
 }: RestaurantMenuPageProps) => {
   const { slug } = await params;
   const { consumptionMethod } = await searchParams;
+
   if (!isConsumptionMethodValid(consumptionMethod)) {
     return notFound();
   }
+
   const restaurant = await db.restaurant.findUnique({
     where: { slug },
     include: {
@@ -31,17 +33,24 @@ const RestaurantMenuPage = async ({
       },
     },
   });
+
   if (!restaurant) {
     return notFound();
   }
+
   return (
-    <div>
+    // Container principal trava a tela
+    <div className="flex h-[100dvh] flex-col overflow-hidden">
+      
+      {/* Header renderiza a imagem normalmente */}
       <RestaurantHeader restaurant={restaurant} />
+      
+      {/* Categories tem a margem negativa e o flex-1 internamente, 
+          então vai sobrepor a imagem sem ser cortado */}
       <RestaurantCategories restaurant={restaurant} />
+      
     </div>
   );
 };
 
 export default RestaurantMenuPage;
-
-// http://localhost:3000/fsw-donalds/menu?consumptionMethod=dine_in
