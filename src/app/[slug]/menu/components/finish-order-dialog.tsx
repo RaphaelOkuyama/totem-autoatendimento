@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConsumptionMethod } from "@prisma/client";
+import { loadStripe } from "@stripe/stripe-js";
 import { Loader2Icon } from "lucide-react";
-import { useParams, useRouter, useSearchParams } from "next/navigation"; // Importado useRouter
+import { useParams, useSearchParams } from "next/navigation";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
@@ -31,8 +32,9 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { createOrder } from "../actions/create-order";
+import { createStripeCheckout } from "../actions/create-stripe-checkout";
 import { CartContext } from "../contexts/cart";
-import { isValidCpf, removeCpfPunctuation } from "../helpers/cpf"; // Importado removeCpfPunctuation
+import { isValidCpf } from "../helpers/cpf";
 
 const formSchema = z.object({
   name: z.string().trim().min(1, {
@@ -60,7 +62,6 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
   const { slug } = useParams<{ slug: string }>();
   const { products } = useContext(CartContext);
   const searchParams = useSearchParams();
-  const router = useRouter(); // Inicializado o router
   const [isLoading, setIsLoading] = useState(false);
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -70,7 +71,6 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
     },
     shouldUnregister: true,
   });
-
   const onSubmit = async (data: FormSchema) => {
     try {
       setIsLoading(true);
@@ -78,25 +78,33 @@ const FinishOrderDialog = ({ open, onOpenChange }: FinishOrderDialogProps) => {
         "consumptionMethod",
       ) as ConsumptionMethod;
 
-      await createOrder({
+      const order = await createOrder({
         consumptionMethod,
         customerCpf: data.cpf,
         customerName: data.name,
         products,
         slug,
       });
-
-      onOpenChange(false);
-      
-      router.push(`/${slug}/orders?cpf=${removeCpfPunctuation(data.cpf)}`);
-      
+      const { sessionId } = await createStripeCheckout({
+        products,
+        orderId: order.id,
+        slug,
+        consumptionMethod,
+        cpf: data.cpf,
+      });
+      if (!process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY) return;
+      const stripe = await loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY,
+      );
+      stripe?.redirectToCheckout({
+        sessionId: sessionId,
+      });
     } catch (error) {
       console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerTrigger asChild></DrawerTrigger>
