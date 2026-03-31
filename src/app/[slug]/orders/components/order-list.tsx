@@ -3,7 +3,7 @@
 import { OrderStatus, Prisma } from "@prisma/client";
 import { ChevronLeftIcon, ScrollTextIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -41,7 +41,12 @@ const getStatusLabel = (status: OrderStatus) => {
 
 const OrderList = ({ orders }: OrderListProps) => {
   const router = useRouter();
-  const handleBackClick = () => router.back();
+  const { slug } = useParams<{ slug: string }>();
+
+  // 🔥 router.push ao invés de router.back() — garante que volta para a home
+  // do restaurante e não para o histórico do Stripe
+  const handleBackClick = () => router.push(`/${slug}`);
+
   return (
     <div className="space-y-6 p-6">
       <Button
@@ -52,18 +57,30 @@ const OrderList = ({ orders }: OrderListProps) => {
       >
         <ChevronLeftIcon />
       </Button>
+
       <div className="flex items-center gap-3">
         <ScrollTextIcon />
         <h2 className="text-lg font-semibold">Meus Pedidos</h2>
       </div>
+
       {orders.map((order) => (
         <Card key={order.id}>
           <CardContent className="space-y-4 p-5">
             <div
-              className={`w-fit rounded-full px-2 py-1 text-xs font-semibold text-white ${([OrderStatus.PAYMENT_CONFIRMED, OrderStatus.FINISHED] as OrderStatus[]).includes(order.status) ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"} `}
+              className={`w-fit rounded-full px-2 py-1 text-xs font-semibold text-white ${
+                (
+                  [
+                    OrderStatus.PAYMENT_CONFIRMED,
+                    OrderStatus.FINISHED,
+                  ] as OrderStatus[]
+                ).includes(order.status)
+                  ? "bg-green-500 text-white"
+                  : "bg-gray-200 text-gray-500"
+              }`}
             >
               {getStatusLabel(order.status)}
             </div>
+
             <div className="flex items-center gap-2">
               <div className="relative h-5 w-5">
                 <Image
@@ -75,7 +92,9 @@ const OrderList = ({ orders }: OrderListProps) => {
               </div>
               <p className="text-sm font-semibold">{order.restaurant.name}</p>
             </div>
+
             <Separator />
+
             <div className="space-y-2">
               {order.orderProducts.map((orderProduct) => (
                 <div key={orderProduct.id} className="flex items-center gap-2">
@@ -86,7 +105,9 @@ const OrderList = ({ orders }: OrderListProps) => {
                 </div>
               ))}
             </div>
+
             <Separator />
+
             <p className="text-sm font-medium">{formatCurrency(order.total)}</p>
           </CardContent>
         </Card>

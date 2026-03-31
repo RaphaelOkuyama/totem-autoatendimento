@@ -27,7 +27,9 @@ export const createStripeCheckout = async ({
   if (!process.env.STRIPE_SECRET_KEY) {
     throw new Error("Missing Stripe secret key");
   }
+
   const origin = (await headers()).get("origin") as string;
+
   const productsWithPrices = await db.product.findMany({
     where: {
       id: {
@@ -35,16 +37,19 @@ export const createStripeCheckout = async ({
       },
     },
   });
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-02-24.acacia",
   });
+
   const searchParams = new URLSearchParams();
   searchParams.set("consumptionMethod", consumptionMethod);
   searchParams.set("cpf", removeCpfPunctuation(cpf));
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     mode: "payment",
-    success_url: `${origin}/${slug}/orders?${searchParams.toString()}`,
+    success_url: `${origin}/${slug}/success?${searchParams.toString()}`,
     cancel_url: `${origin}/${slug}/orders?${searchParams.toString()}`,
     metadata: {
       orderId,
@@ -62,5 +67,6 @@ export const createStripeCheckout = async ({
       quantity: product.quantity,
     })),
   });
+
   return { sessionId: session.id };
 };

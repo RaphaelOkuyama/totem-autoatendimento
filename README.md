@@ -25,6 +25,10 @@ Sistema de autoatendimento estilo totem para restaurantes, com cardápio digital
 |--------------------------|--------------|------------------------|
 | ![Visualizar Pedidos](./docs/visualizar-pedidos-cpf.png) | ![Meus Pedidos](./docs/meus-pedidos.png) | ![Cardápio Bebidas](./docs/cardapio-bebidas.png) |
 
+| Loading Pós-Pagamento |
+|-----------------------|
+| ![Loading](./docs/confirmamento-de-pagamento.png) |
+
 </div>
 
 ---
@@ -61,6 +65,8 @@ O projeto utiliza **Server Components** para busca de dados, **Server Actions** 
 - Criação do pedido no banco via Server Action
 - Redirecionamento para checkout do **Stripe** para pagamento por cartão
 - Webhook para atualização automática do status do pedido após pagamento
+- Tela de loading animada pós-pagamento com hambúrguer sendo montado camada por camada
+- Redirecionamento seguro via `router.replace()` — elimina a página do Stripe do histórico do navegador, evitando que o botão nativo de voltar do celular retorne para o checkout expirado
 
 ### 📦 Acompanhamento de Pedidos
 - Acesso à listagem de pedidos pelo CPF do cliente
@@ -124,7 +130,7 @@ totem-autoatendimento/
 │   │       │   │   └── page.tsx # Detalhes do produto
 │   │       │   ├── actions/
 │   │       │   │   ├── create-order.ts           # Server Action: cria pedido no banco
-│   │       │   │   └── create-stripe-checkout.ts # Server Action: cria sessão Stripe
+│   │       │   │   └── create-stripe-checkout.ts # Server Action: redireciona para /success após pagamento
 │   │       │   ├── components/
 │   │       │   │   ├── categories.tsx            # Navegação por categorias + barra do carrinho
 │   │       │   │   ├── header.tsx                # Header com imagem de capa
@@ -136,11 +142,13 @@ totem-autoatendimento/
 │   │       │   │   └── cart.tsx                  # Context API do carrinho
 │   │       │   └── helpers/
 │   │       │       └── cpf.ts                    # Validação e formatação de CPF
+│   │       ├── success/
+│   │       │   └── page.tsx     # Tela animada pós-pagamento — limpa histórico do Stripe
 │   │       └── orders/
 │   │           ├── page.tsx     # Página de pedidos (requer CPF)
 │   │           └── components/
 │   │               ├── cpf-form.tsx              # Drawer para inserir CPF
-│   │               └── order-list.tsx            # Listagem de pedidos do cliente
+│   │               └── order-list.tsx            # Listagem de pedidos — volta para home do restaurante
 │   ├── components/
 │   │   └── ui/                  # Componentes shadcn/ui
 │   ├── helpers/
@@ -276,8 +284,14 @@ Stripe dispara evento webhook (checkout.session.completed ou charge.failed)
     ↓
 API Route /api/stripe/webhook → atualiza status do pedido no banco
     ↓
-revalidatePath() → atualiza página de pedidos em tempo real
+success_url aponta para /{slug}/success (página intermediária)
+    ↓
+router.replace() → remove Stripe do histórico e redireciona para /{slug}/orders?cpf=...
+    ↓
+Tela animada de loading (hambúrguer + steps + countdown) enquanto redireciona
 ```
+
+> ⚠️ **Por que a rota `/success`?** O `router.replace()` destrói a entrada do Stripe no histórico do navegador. Sem ela, o gesto de arrastar para voltar no iPhone e o botão nativo do Android retornam para a tela "Sessão expirada" do Stripe.
 
 ---
 
