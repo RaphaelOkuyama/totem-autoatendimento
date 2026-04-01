@@ -27,7 +27,7 @@ Sistema de autoatendimento estilo totem para restaurantes, com cardápio digital
 
 | Loading Pós-Pagamento |
 |-----------------------|
-| ![Loading](./docs/sucess-payment.png.png) |
+| ![Loading](./docs/sucess-payment.png) |
 
 </div>
 
