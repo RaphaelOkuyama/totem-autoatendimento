@@ -3,6 +3,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 
+import { Toaster } from "@/components/ui/sonner";
+
 import { CartProvider } from "./[slug]/menu/contexts/cart";
 
 const poppins = Poppins({
@@ -11,8 +13,8 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  title: "FSW Donalds",
-  description: "Bora finalizar esse projeto lindo!",
+  title: "FSW Donalds | Totem de Autoatendimento",
+  description: "Sistema full-stack de pedidos para restaurantes com Next.js, Stripe e Prisma.",
 };
 
 export default function RootLayout({
@@ -21,9 +23,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="pt-BR">
       <body className={`${poppins.className} antialiased`}>
         <CartProvider>{children}</CartProvider>
+
+        <Toaster/>
       </body>
     </html>
   );

@@ -43,8 +43,6 @@ const OrderList = ({ orders }: OrderListProps) => {
   const router = useRouter();
   const { slug } = useParams<{ slug: string }>();
 
-  // 🔥 router.push ao invés de router.back() — garante que volta para a home
-  // do restaurante e não para o histórico do Stripe
   const handleBackClick = () => router.push(`/${slug}`);
 
   return (

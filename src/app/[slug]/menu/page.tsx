@@ -42,11 +42,7 @@ const RestaurantMenuPage = async ({
     // Container principal trava a tela
     <div className="flex h-[100dvh] flex-col overflow-hidden">
       
-      {/* Header renderiza a imagem normalmente */}
       <RestaurantHeader restaurant={restaurant} />
-      
-      {/* Categories tem a margem negativa e o flex-1 internamente, 
-          então vai sobrepor a imagem sem ser cortado */}
       <RestaurantCategories restaurant={restaurant} />
       
     </div>

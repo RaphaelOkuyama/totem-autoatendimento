@@ -42,13 +42,8 @@ const ProductDetails = ({ product }: ProductDetailsProps) => {
 
   return (
     <>
-      {/* REMOVEI A IMAGEM DAQUI. 
-          Este container agora ocupa apenas a parte de baixo da tela.
-          A imagem deve estar no arquivo 'page.tsx' acima deste componente.
-      */}
       <div className="relative z-10 flex h-full flex-col overflow-hidden rounded-t-3xl border-t bg-white p-5 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
         
-        {/* TOPO DO CARD (Fixo: Nome e Preço) */}
         <div className="flex-none pb-4">
           <div className="flex items-center gap-1.5">
             <Image

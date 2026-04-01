@@ -43,8 +43,6 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
   };
 
   return (
-    // relative z-50 e mt-[-1.5rem] puxam o card para cima da imagem do restaurante.
-    // flex-1 e overflow-hidden preenchem o resto da tela travada e impedem o scroll global.
     <div className="relative z-50 mt-[-1.5rem] flex flex-1 flex-col overflow-hidden rounded-t-3xl bg-white">
       
       {/* 1. CABEÇALHO DO CARD (Fixo: Não rola) */}
@@ -92,7 +90,6 @@ const RestaurantCategories = ({ restaurant }: RestaurantCategoriesProps) => {
       {/* 3. ÁREA DOS PRODUTOS (Scroll Vertical travado apenas aqui) */}
       <div className="flex-1 overflow-hidden mt-2">
         <ScrollArea className="h-full w-full overscroll-contain">
-          {/* MUDANÇA DO ESPAÇO: Se tem item na sacola, dá o espaço (pb-32). Se não tem, deixa normal (pb-6). */}
           <div className={`px-1 ${products.length > 0 ? "pb-32" : "pb-6"}`}>
             <Products products={selectedCategory.products} />
           </div>
